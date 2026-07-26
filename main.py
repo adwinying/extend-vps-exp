@@ -65,8 +65,21 @@ async def main():
             logging.info('Waiting for dashboard to load...')
             await page.wait_for_selector('a[href^="/xapanel/xvps/server/detail?id="]', timeout=30000)
 
+            # Check and remove campaign modal if present (for free users)
+            try:
+                modal = page.locator('#campaignModalForFreeUsers')
+                if await modal.is_visible(timeout=3000):
+                    logging.info('Campaign modal detected for free users, removing modal...')
+                    await page.evaluate('''() => {
+                        const modal = document.getElementById("campaignModalForFreeUsers");
+                        if (modal) modal.remove();
+                        document.querySelectorAll(".modal, .modal-backdrop, .modalIsOpen").forEach(el => el.remove());
+                    }''')
+            except Exception as e:
+                logging.debug(f'Modal check ignored: {e}')
+
             logging.info('Navigating server details...')
-            await page.locator('a[href^="/xapanel/xvps/server/detail?id="]').first.click(no_wait_after=True)
+            await page.locator('a[href^="/xapanel/xvps/server/detail?id="]').first.click(no_wait_after=True, force=True)
             
             logging.info('Waiting for server detail page...')
             await page.wait_for_selector('text="更新する"', timeout=30000)
