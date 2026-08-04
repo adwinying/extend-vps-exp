@@ -2,7 +2,8 @@ name: VPS Auto Renewal
 
 on:
   schedule:
-    - cron: '0 0,8,16 * * *'
+    # 09:00, 14:00, and 18:00 Asia/Tokyo (GitHub Actions cron uses UTC).
+    - cron: '0 0,5,9 * * *'
   workflow_dispatch:
 
 jobs:
